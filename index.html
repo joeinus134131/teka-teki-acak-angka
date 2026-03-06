@@ -620,7 +620,8 @@ const WORD_STEPS = [
   { name: 'STEP 2', words: ['EFFICIENCY','ENERGY','CONSUMPTION','HEMAT','LISTRIK'] },
   { name: 'STEP 3', words: ['HASIL','AUDIT','ZERO','FINDING','EKSTERNAL','KITA'] }
 ];
-const DIRECTIONS = [[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+// Hanya arah maju: Kanan [0,1], Bawah [1,0], Diagonal Bawah Kanan [1,1], Diagonal Atas Kanan [-1,1]
+const DIRECTIONS = [[0,1],[1,0],[1,1],[-1,1]];
 const COLS = 14;
 const ROWS = 14;
 
@@ -880,10 +881,11 @@ function highlightSelection() {
 
 function checkSelection() {
   const str = currentSelection.map(([r,c]) => grid[r][c]).join('');
-  const rev = str.split('').reverse().join('');
+  
   for (const p of placed) {
     if (foundWords.has(p.word)) continue;
-    if (p.word === str || p.word === rev) {
+    // Hanya cek bacaan maju sesuai urutan seleksi
+    if (p.word === str) {
       foundWords.add(p.word);
       for (const [r,c] of p.cells) cellEl(r,c)?.classList.add('found');
       updateStats();

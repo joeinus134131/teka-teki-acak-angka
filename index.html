@@ -599,6 +599,7 @@
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       <button class="btn-reset" onclick="initGame(currentStepIndex)">↺ RESET STEP INI</button>
+      <button class="btn-reset" onclick="showHint()" style="border-color: var(--accent2); color: var(--accent2);">💡 MINTA KISI-KISI</button>
       <div style="display: flex; gap: 8px; margin-top: 4px;">
         <button class="btn-reset" id="btn-prev-step" onclick="prevStep()" style="flex: 1; display: none; margin-top: 0; border-color: var(--accent); color: var(--accent);">❮ KEMBALI</button>
         <button class="btn-reset" id="btn-next-step" onclick="nextStep()" style="flex: 1; display: none; margin-top: 0; border-color: var(--accent); color: var(--accent);">LANJUT ❯</button>
@@ -697,6 +698,37 @@ function nextStep() {
 function prevStep() {
   if (currentStepIndex > 0) {
     initGame(currentStepIndex - 1);
+  }
+}
+
+function showHint() {
+  const missingWords = placed.filter(p => !foundWords.has(p.word));
+  if (missingWords.length === 0) return;
+  
+  // Pick a random missing word
+  const target = missingWords[Math.floor(Math.random() * missingWords.length)];
+  const firstLetterCell = target.cells[0]; // [r, c]
+  
+  // Highlight the first letter specifically
+  const el = cellEl(firstLetterCell[0], firstLetterCell[1]);
+  if (el) {
+    // Flash the cell several times
+    let count = 0;
+    const interval = setInterval(() => {
+      if (count % 2 === 0) {
+        el.style.background = 'var(--accent2)';
+        el.style.color = '#000';
+        el.style.transform = 'scale(1.2)';
+        el.style.zIndex = '20';
+      } else {
+        el.style.background = '';
+        el.style.color = '';
+        el.style.transform = '';
+        el.style.zIndex = '';
+      }
+      count++;
+      if (count >= 6) clearInterval(interval);
+    }, 250);
   }
 }
 

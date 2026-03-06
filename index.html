@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teka-Teki Kata — Energy Audit</title>
+<title>Teka-Teki Kata</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap');
 
   :root {
     /* Cyberpunk (Default) */
@@ -73,6 +73,20 @@
     --found: #ff9933;
     --selected: #ff3333;
   }
+  
+  [data-theme="kawaii"] {
+    --bg: #fff0f5; /* LavenderBlush */
+    --panel: #ffffff;
+    --border: #ffb6c1; /* LightPink */
+    --accent: #ff69b4; /* HotPink */
+    --accent2: #ffb6c1; /* LightPink */
+    --accent3: #ffc0cb; /* Pink */
+    --text: #5a4b5b; /* dark warm gray */
+    --dim: #a084a0;
+    --found: #ff69b4;
+    --selected: #ff1493; /* DeepPink */
+    --is-light: 1;
+  }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -97,6 +111,20 @@
     position: relative;
     width: 100%;
     max-width: 1000px;
+  }
+  
+  /* Additional text styling for kawaii theme headers */
+  [data-theme="kawaii"] header h1 {
+    text-shadow: 2px 2px 0 #ffe4e1, 4px 4px 0 #ffb6c1;
+    color: var(--accent);
+    font-family: 'Fredoka One', cursive, sans-serif;
+  }
+  [data-theme="kawaii"] header h1 span { color: #ff1493; }
+  [data-theme="kawaii"] header .tag,
+  [data-theme="kawaii"] header .subtitle {
+    font-family: sans-serif;
+    font-weight: bold;
+    color: var(--dim);
   }
 
   .theme-selector {
@@ -175,6 +203,12 @@
     position: relative;
     box-shadow: 0 0 40px rgba(0,212,255,0.08), inset 0 0 60px rgba(0,0,0,0.3);
   }
+  
+  [data-theme="kawaii"] .board-frame {
+    border: 4px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(255, 105, 180, 0.15);
+  }
 
   .board-frame::before {
     content: '';
@@ -188,6 +222,8 @@
     mask-composite: exclude;
     pointer-events: none;
   }
+  
+  [data-theme="kawaii"] .board-frame::before { display: none; }
 
   .corner { position: absolute; width: 12px; height: 12px; }
   .corner::before, .corner::after { content: ''; position: absolute; background: var(--accent); }
@@ -197,6 +233,8 @@
   .c-tr { top: -1px; right: -1px; transform: scaleX(-1); }
   .c-bl { bottom: -1px; left: -1px; transform: scaleY(-1); }
   .c-br { bottom: -1px; right: -1px; transform: scale(-1); }
+  
+  [data-theme="kawaii"] .corner { display: none; }
 
   #grid {
     display: grid;
@@ -222,11 +260,50 @@
     position: relative;
     background: rgba(10,22,40,0.6);
   }
+  
+  [data-theme="kawaii"] .cell {
+    font-family: 'Nunito', sans-serif;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background: #ffeeef;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
 
   .cell:hover { border-color: var(--accent); color: #fff; background: rgba(0,212,255,0.06); }
   .cell.selecting { background: rgba(0,212,255,0.18); border-color: var(--selected); color: #fff; box-shadow: inset 0 0 8px rgba(0,212,255,0.3); }
   .cell.found { background: rgba(0,255,157,0.12); border-color: var(--found); color: var(--found); box-shadow: inset 0 0 8px rgba(0,255,157,0.2); }
   .cell.found.selecting { background: rgba(0,255,157,0.2); }
+  
+  /* Kawaii cell states */
+  [data-theme="kawaii"] .cell:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #fff;
+    transform: scale(1.15) rotate(3deg);
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(255, 105, 180, 0.4);
+  }
+  [data-theme="kawaii"] .cell.selecting {
+    background: var(--accent);
+    color: #fff;
+    transform: scale(1.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
+  }
+  [data-theme="kawaii"] .cell.found {
+    background: var(--found);
+    color: #fff;
+    border-color: #fff;
+    animation: bouncePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 8px rgba(255, 105, 180, 0.3);
+  }
+  [data-theme="kawaii"] .cell.found.selecting { background: var(--accent); }
+  
+  @keyframes bouncePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3) rotate(-5deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
 
   .sidebar {
     display: flex;
@@ -242,6 +319,13 @@
     padding: 16px;
     position: relative;
   }
+  
+  [data-theme="kawaii"] .word-list-panel, [data-theme="kawaii"] .stats-panel {
+    border-radius: 16px;
+    border: 3px solid var(--border);
+    box-shadow: 0 8px 0 var(--border);
+    margin-bottom: 8px; /* Room for shadow */
+  }
 
   .panel-title {
     font-family: 'Orbitron', sans-serif;
@@ -252,6 +336,14 @@
     margin-bottom: 14px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border);
+  }
+  
+  [data-theme="kawaii"] .panel-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 900;
+    border-bottom: 2px dashed var(--border);
   }
 
   .word-item {
@@ -265,12 +357,67 @@
     transition: all 0.2s;
     border-bottom: 1px solid rgba(26,58,92,0.3);
   }
+  
+  [data-theme="kawaii"] .word-item {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    border-bottom: none;
+    padding: 8px 0;
+  }
 
   .word-item:last-child { border-bottom: none; }
   .word-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  
+  [data-theme="kawaii"] .word-item .dot {
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffb6c1"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+    background-size: contain;
+    width: 14px;
+    height: 14px;
+    border-radius: 0;
+  }
+  
   .word-item.found-word { color: var(--found); }
   .word-item.found-word .dot { background: var(--found); box-shadow: 0 0 6px var(--found); }
+  
+  [data-theme="kawaii"] .word-item.found-word .dot {
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff69b4"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+    background-size: contain;
+    box-shadow: none;
+    animation: heartPulse 1s infinite;
+  }
+  
+  @keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
   .word-item.found-word span { text-decoration: line-through; opacity: 0.6; }
+  
+  [data-theme="kawaii"] .word-item.found-word span {
+    text-decoration: none;
+    opacity: 1;
+    color: var(--found);
+    position: relative;
+    display: inline-block;
+  }
+  [data-theme="kawaii"] .word-item.found-word span::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 3px;
+    background: var(--found);
+    border-radius: 2px;
+    animation: strike 0.4s ease-out forwards;
+  }
+  
+  @keyframes strike {
+    from { width: 0; }
+    to { width: 100%; }
+  }
 
   .stats-panel {
     border: 1px solid var(--border);
@@ -326,11 +473,41 @@
     transition: all 0.2s;
     margin-top: 4px;
   }
+  
+  [data-theme="kawaii"] .btn-reset {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    border-radius: 12px;
+    border: 3px solid var(--border);
+    background: var(--bg);
+    color: var(--accent);
+    font-weight: 800;
+    box-shadow: 0 4px 0 var(--border);
+    margin-top: 10px;
+  }
 
   .btn-reset:hover {
     border-color: var(--accent3);
     color: var(--accent3);
     box-shadow: 0 0 12px rgba(255,107,53,0.2);
+  }
+  
+  [data-theme="kawaii"] .btn-reset:hover {
+    box-shadow: 0 2px 0 var(--border);
+    transform: translateY(2px);
+    background: var(--border);
+    color: #fff;
+  }
+  
+  [data-theme="kawaii"] #btn-next-step, [data-theme="kawaii"] #btn-prev-step {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 4px 0 var(--accent);
+  }
+  [data-theme="kawaii"] #btn-next-step:hover, [data-theme="kawaii"] #btn-prev-step:hover {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 0 var(--accent);
   }
 
   .win-overlay {
@@ -343,6 +520,10 @@
     justify-content: center;
     flex-direction: column;
     gap: 16px;
+  }
+  
+  [data-theme="kawaii"] .win-overlay {
+    background: rgba(255, 240, 245, 0.95);
   }
 
   .win-overlay.active { display: flex; animation: fadeIn 0.4s ease; }
@@ -357,9 +538,17 @@
     color: var(--accent2);
     animation: pulse 2s infinite;
     letter-spacing: 4px;
+    text-align: center;
+  }
+  
+  [data-theme="kawaii"] .win-title {
+    font-family: 'Fredoka One', cursive, sans-serif;
+    color: var(--accent);
+    text-shadow: 3px 3px 0 #ffe4e1;
+    animation: bouncePop 1.5s infinite;
   }
 
-  .win-sub { font-size: 14px; letter-spacing: 2px; color: var(--dim); }
+  .win-sub { font-size: 14px; letter-spacing: 2px; color: var(--dim); text-align: center; }
 
   @media (max-width: 600px) {
     :root { --cell-size: 28px; }
@@ -372,7 +561,7 @@
 <body>
 
 <header>
-  <div class="tag">// AUDIT ENERGI //</div>
+  <div class="tag">// TEKA-TEKI KATA //</div>
   <h1>TEKA-TEKI <span id="step-indicator">STEP 1</span></h1>
   <div class="subtitle">TEMUKAN SEMUA KATA TERSEMBUNYI</div>
   <select class="theme-selector" id="theme-select" onchange="changeTheme(this.value)">
@@ -381,6 +570,7 @@
     <option value="synthwave">SYNTHWAVE</option>
     <option value="midnight">MIDNIGHT</option>
     <option value="crimson">CRIMSON</option>
+    <option value="kawaii">KAWAII 🌸</option>
   </select>
 </header>
 

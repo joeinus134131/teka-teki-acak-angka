@@ -290,7 +290,7 @@
 
 <header>
   <div class="tag">// AUDIT ENERGI //</div>
-  <h1>TEKA-TEKI <span>KATA</span></h1>
+  <h1>TEKA-TEKI <span id="step-indicator">STEP 1</span></h1>
   <div class="subtitle">TEMUKAN SEMUA KATA TERSEMBUNYI</div>
 </header>
 
@@ -306,10 +306,7 @@
   </div>
 
   <div class="sidebar">
-    <div class="word-list-panel">
-      <div class="panel-title">▸ DAFTAR KATA</div>
-      <div id="word-list"></div>
-    </div>
+    <div id="word-steps-container" style="display: contents;"></div>
     <div class="stats-panel">
       <div class="panel-title">▸ STATISTIK</div>
       <div class="stat-row">
@@ -321,44 +318,114 @@
         <span class="stat-value" id="stat-total">0</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-      <button class="btn-reset" onclick="initGame()">↺ RESET GAME</button>
+      <button class="btn-reset" onclick="initGame(currentStepIndex)">↺ RESET STEP INI</button>
+      <div style="display: flex; gap: 8px; margin-top: 4px;">
+        <button class="btn-reset" id="btn-prev-step" onclick="prevStep()" style="flex: 1; display: none; margin-top: 0; border-color: var(--accent); color: var(--accent);">❮ KEMBALI</button>
+        <button class="btn-reset" id="btn-next-step" onclick="nextStep()" style="flex: 1; display: none; margin-top: 0; border-color: var(--accent); color: var(--accent);">LANJUT ❯</button>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="win-overlay" id="win-overlay">
-  <div class="win-title">✓ SELESAI!</div>
-  <div class="win-sub">SEMUA KATA BERHASIL DITEMUKAN</div>
-  <button class="btn-reset" style="width:200px;margin-top:16px" onclick="initGame(); document.getElementById('win-overlay').classList.remove('active')">↺ MAIN LAGI</button>
+<div class="win-overlay" id="overlay">
+  <div class="win-title" id="overlay-title">✓ SELESAI!</div>
+  <div class="win-sub" id="overlay-sub">SEMUA KATA BERHASIL DITEMUKAN</div>
+  <button class="btn-reset" id="overlay-btn" style="width:200px;margin-top:16px">LANJUT</button>
 </div>
 
 <script>
-const WORDS = ['KPI','MAYORA','INDAH','JAYANTI','DUA','HIJAU','EFFICIENCY','ENERGY','CONSUMPTION','HEMAT','LISTRIK','HASIL','AUDIT','ZERO','FINDING','EKSTERNAL','KITA'];
+const WORD_STEPS = [
+  { name: 'STEP 1', words: ['KPI','MAYORA','INDAH','JAYANTI','DUA','HIJAU'] },
+  { name: 'STEP 2', words: ['EFFICIENCY','ENERGY','CONSUMPTION','HEMAT','LISTRIK'] },
+  { name: 'STEP 3', words: ['HASIL','AUDIT','ZERO','FINDING','EKSTERNAL','KITA'] }
+];
 const DIRECTIONS = [[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
-const COLS = 20;
-const ROWS = 18;
+const COLS = 14;
+const ROWS = 14;
 
+let currentStepIndex = 0;
+let activeWords = [];
 let grid = [], placed = [], foundWords = new Set();
 let selecting = false, startCell = null, currentSelection = [];
 
-function initGame() {
-  grid = Array.from({length: ROWS}, () => Array(COLS).fill(''));
-  placed = [];
+function initGame(step = 0) {
+  currentStepIndex = step;
+  activeWords = WORD_STEPS[currentStepIndex].words;
+  
+  let allPlaced = false;
+  
+  while (!allPlaced) {
+    grid = Array.from({length: ROWS}, () => Array(COLS).fill(''));
+    placed = [];
+    allPlaced = true;
+    
+    const sorted = [...activeWords].sort((a,b) => b.length - a.length);
+    for (const word of sorted) {
+      if (!placeWord(word)) {
+        allPlaced = false;
+        break; // Start over if any word fails
+      }
+    }
+  }
+
   foundWords = new Set();
   currentSelection = [];
   selecting = false;
+  
+  document.getElementById('step-indicator').textContent = WORD_STEPS[currentStepIndex].name;
+  
+  const btnPrev = document.getElementById('btn-prev-step');
+  const btnNext = document.getElementById('btn-next-step');
+  
+  if (currentStepIndex > 0) {
+    btnPrev.style.display = 'block';
+  } else {
+    btnPrev.style.display = 'none';
+  }
+  
+  if (currentStepIndex < WORD_STEPS.length - 1) {
+    btnNext.style.display = 'block';
+  } else {
+    btnNext.style.display = 'none';
+  }
 
-  const sorted = [...WORDS].sort((a,b) => b.length - a.length);
-  for (const word of sorted) placeWord(word);
   fillRandom();
   renderGrid();
   renderWordList();
   updateStats();
 }
 
+function showOverlay(title, sub, btnText, callback) {
+  document.getElementById('overlay-title').textContent = title;
+  document.getElementById('overlay-sub').textContent = sub;
+  const btn = document.getElementById('overlay-btn');
+  btn.textContent = btnText;
+  btn.onclick = callback;
+  document.getElementById('overlay').classList.add('active');
+}
+
+function hideOverlay() {
+  document.getElementById('overlay').classList.remove('active');
+}
+
+function nextStep() {
+  if (currentStepIndex < WORD_STEPS.length - 1) {
+    initGame(currentStepIndex + 1);
+  }
+}
+
+function prevStep() {
+  if (currentStepIndex > 0) {
+    initGame(currentStepIndex - 1);
+  }
+}
+
 function placeWord(word) {
-  const attempts = 200;
-  for (let i = 0; i < attempts; i++) {
+  let placed = false;
+  let attempts = 0;
+  
+  while (!placed && attempts < 2000) {
+    attempts++;
     const dir = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
     const [dr, dc] = dir;
     const maxR = dr === 0 ? ROWS - 1 : dr > 0 ? ROWS - word.length : word.length - 1;
@@ -367,12 +434,21 @@ function placeWord(word) {
     const minC = dc < 0 ? word.length - 1 : 0;
     const r = Math.floor(Math.random() * (maxR - minR + 1)) + minR;
     const c = Math.floor(Math.random() * (maxC - minC + 1)) + minC;
+    
     if (canPlace(word, r, c, dr, dc)) {
       doPlace(word, r, c, dr, dc);
-      return true;
+      placed = true;
     }
   }
-  return false;
+
+  if (!placed) {
+    console.warn(`Gagal menempatkan kata: ${word}`);
+    // You could theoretically restart the grid generation here if you wanted
+    // to guarantee all words fit, but 2000 attempts is usually sufficient
+    // for sparse boards.
+  }
+  
+  return placed;
 }
 
 function canPlace(word, r, c, dr, dc) {
@@ -500,23 +576,45 @@ function checkSelection() {
       for (const [r,c] of p.cells) cellEl(r,c)?.classList.add('found');
       updateStats();
       updateWordList();
-      if (foundWords.size === WORDS.length) setTimeout(() => document.getElementById('win-overlay').classList.add('active'), 400);
+      if (foundWords.size === activeWords.length) {
+        setTimeout(() => {
+          if (currentStepIndex < WORD_STEPS.length - 1) {
+            showOverlay('✓ STEP SELESAI!', 'LANJUT KE TAHAP BERIKUTNYA', 'LANJUT SETELAHNYA ❯', () => {
+              hideOverlay();
+              initGame(currentStepIndex + 1);
+            });
+          } else {
+            showOverlay('🌟 TUNTAS 🌟', 'SEMUA TAHAP BERHASIL DISELESAIKAN', '↺ MAIN LAGI', () => {
+              hideOverlay();
+              initGame(0);
+            });
+          }
+        }, 400);
+      }
       return;
     }
   }
 }
 
 function renderWordList() {
-  const el = document.getElementById('word-list');
-  el.innerHTML = WORDS.map(w =>
-    `<div class="word-item ${foundWords.has(w) ? 'found-word' : ''}" id="wi-${w}">
-      <div class="dot"></div><span>${w}</span>
-    </div>`
-  ).join('');
+  const container = document.getElementById('word-steps-container');
+  const step = WORD_STEPS[currentStepIndex];
+  container.innerHTML = `
+    <div class="word-list-panel">
+      <div class="panel-title">▸ ${step.name}</div>
+      <div class="word-list">
+        ${step.words.map(w => `
+          <div class="word-item ${foundWords.has(w) ? 'found-word' : ''}" id="wi-${w}">
+            <div class="dot"></div><span>${w}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
 }
 
 function updateWordList() {
-  for (const w of WORDS) {
+  for (const w of activeWords) {
     const el = document.getElementById('wi-'+w);
     if (el) el.className = `word-item ${foundWords.has(w) ? 'found-word' : ''}`;
   }
@@ -524,8 +622,8 @@ function updateWordList() {
 
 function updateStats() {
   document.getElementById('stat-found').textContent = foundWords.size;
-  document.getElementById('stat-total').textContent = WORDS.length;
-  document.getElementById('progress-fill').style.width = (foundWords.size / WORDS.length * 100) + '%';
+  document.getElementById('stat-total').textContent = activeWords.length;
+  document.getElementById('progress-fill').style.width = (foundWords.size / activeWords.length * 100) + '%';
 }
 
 initGame();

@@ -8,6 +8,7 @@
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
   :root {
+    /* Cyberpunk (Default) */
     --bg: #050d1a;
     --panel: #0a1628;
     --border: #1a3a5c;
@@ -19,6 +20,58 @@
     --found: #00ff9d;
     --selected: #00d4ff;
     --cell-size: 38px;
+  }
+  
+  [data-theme="matrix"] {
+    --bg: #000a00;
+    --panel: #001400;
+    --border: #004d00;
+    --accent: #00ff00;
+    --accent2: #33ff33;
+    --accent3: #ccffcc;
+    --text: #e6ffe6;
+    --dim: #009900;
+    --found: #33ff33;
+    --selected: #00ff00;
+  }
+
+  [data-theme="synthwave"] {
+    --bg: #0f0518;
+    --panel: #1a0b2e;
+    --border: #4d1a66;
+    --accent: #ff00ff;
+    --accent2: #00ffff;
+    --accent3: #ffb300;
+    --text: #ffe6ff;
+    --dim: #b366cc;
+    --found: #00ffff;
+    --selected: #ff00ff;
+  }
+
+  [data-theme="midnight"] {
+    --bg: #0b0f19;
+    --panel: #111827;
+    --border: #374151;
+    --accent: #60a5fa;
+    --accent2: #facc15;
+    --accent3: #f87171;
+    --text: #f3f4f6;
+    --dim: #9ca3af;
+    --found: #facc15;
+    --selected: #60a5fa;
+  }
+  
+  [data-theme="crimson"] {
+    --bg: #1a0505;
+    --panel: #2e0a0a;
+    --border: #661a1a;
+    --accent: #ff3333;
+    --accent2: #ff9933;
+    --accent3: #ffff33;
+    --text: #ffe6e6;
+    --dim: #cc6666;
+    --found: #ff9933;
+    --selected: #ff3333;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,6 +94,36 @@
   header {
     text-align: center;
     margin-bottom: 32px;
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  .theme-selector {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 6px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+  }
+  
+  .theme-selector:hover, .theme-selector:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 10px rgba(0,255,157,0.2);
+  }
+  
+  .theme-selector option {
+    background: var(--bg);
+    color: var(--text);
   }
 
   header .tag {
@@ -292,6 +375,13 @@
   <div class="tag">// AUDIT ENERGI //</div>
   <h1>TEKA-TEKI <span id="step-indicator">STEP 1</span></h1>
   <div class="subtitle">TEMUKAN SEMUA KATA TERSEMBUNYI</div>
+  <select class="theme-selector" id="theme-select" onchange="changeTheme(this.value)">
+    <option value="default">CYBERPUNK</option>
+    <option value="matrix">THE MATRIX</option>
+    <option value="synthwave">SYNTHWAVE</option>
+    <option value="midnight">MIDNIGHT</option>
+    <option value="crimson">CRIMSON</option>
+  </select>
 </header>
 
 <div class="main-layout">
@@ -625,6 +715,25 @@ function updateStats() {
   document.getElementById('stat-total').textContent = activeWords.length;
   document.getElementById('progress-fill').style.width = (foundWords.size / activeWords.length * 100) + '%';
 }
+
+function changeTheme(themeName) {
+  if (themeName === 'default') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', themeName);
+  }
+}
+
+// Check saved theme
+const savedTheme = localStorage.getItem('acak-kata-theme');
+if (savedTheme) {
+  document.getElementById('theme-select').value = savedTheme;
+  changeTheme(savedTheme);
+}
+
+document.getElementById('theme-select').addEventListener('change', function(e) {
+  localStorage.setItem('acak-kata-theme', e.target.value);
+});
 
 initGame();
 </script>

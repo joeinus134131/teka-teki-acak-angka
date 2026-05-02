@@ -32,7 +32,14 @@ export function renderLanding(container) {
         </div>
       </div>
 
-      <div class="features" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; width: 100%; margin-top: 60px;">
+      <div class="hero-scroll-hint">
+        <span>SCROLL UNTUK EXPLORE</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+      </div>
+    </div>
+
+    <div class="container" style="padding-bottom: 100px;">
+      <div class="features" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; width: 100%; margin-top: 40px;">
         <div class="glass-panel" style="text-align: left;">
           <h3 style="color: var(--accent); margin-bottom: 12px;">Multi Theme</h3>
           <p style="font-size: 14px;">Pilih dari berbagai tema futuristik mulai dari Cyberpunk hingga Kawaii.</p>
